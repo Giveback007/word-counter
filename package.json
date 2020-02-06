@@ -1,0 +1,9 @@
+{
+  "author": "giveback007 <dovy91@gmail.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "name": "word-counter",
+  "repository": "https://github.com/Giveback007/word-counter.git",
+  "version": "1.0.0",
+  "dependencies": {}
+}
