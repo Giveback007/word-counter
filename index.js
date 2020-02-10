@@ -1,5 +1,10 @@
 const fs = require('fs');
 
+const opts = {
+    langauge: 'english', // english | bisaya
+    wordsToTxtFile: 200, // n of top words to file
+}
+
 function objMap(o, funct) {
     const newObj = {};
 
@@ -10,13 +15,17 @@ function objMap(o, funct) {
     return newObj;
 }
 
+function numCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 let textStr = '';
-const texts = fs.readdirSync('./texts');
+const texts = fs.readdirSync(`./${opts.langauge}-texts`);
 
 texts.forEach((x) =>
-    textStr += ' ' + fs.readFileSync(`./texts/${x}`, 'utf8'));
+    textStr += ' ' + fs.readFileSync(`./${opts.langauge}-texts/${x}`, 'utf8'));
 
-const ignore = fs.readFileSync('./ignore-words', 'utf8')
+const ignore = fs.readFileSync(`./ignore-words-${opts.langauge}`, 'utf8')
     .toLocaleLowerCase()
     .replace(/\n/g, ' ')
     .replace(/\t/g, ' ')
@@ -68,28 +77,25 @@ const sorted = wordsArr
     });
 
 console.log(texts.length + ' texts-analyzed:', texts.map((x) => x.replace('.txt', '')));
-console.log("total-words-analyzed:", Math.floor(onePercent * 00));
 console.log('ignored-words:', ignore);
-console.log("unique-words:", sorted.length);
+console.log("total-words-analyzed:", numCommas(Math.floor(onePercent * 100)));
+console.log("unique-words:", numCommas(sorted.length));
+console.log(
+    "ratio:", 
+    Math.round(Math.floor(onePercent * 100) / sorted.length * 1000) / 1000,
+    "| recomended: ratio > 25"
+);
 
-const table = JSON.stringify(sorted.slice(0, 600))
+
+const table = JSON.stringify(sorted.slice(0, opts.wordsToTxtFile))
     .replace('[', `
     # |      % | total% | amount | word
- ---------------------------------------
-`
-    )
+ ---------------------------------------\n`)
     .replace(/\[/g, '')
     .replace(/\],/g, ' \n')
     .replace(/","/g, ' | ')
     .replace(/"/g, '')
     .replace(']]', '')
 
-// console.log(table);
-fs.writeFileSync('./counted-words.txt', table)
 
-// Nouns
-// Verbs
-// Adjectives
-// Adverbs
-// Pronouns
-// Prepositions
+fs.writeFileSync(`./counted-words-${opts.langauge}.txt`, table);
